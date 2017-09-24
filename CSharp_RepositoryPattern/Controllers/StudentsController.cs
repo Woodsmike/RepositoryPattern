@@ -8,17 +8,23 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using CSharp_RepositoryPattern.Models;
+using Repository.DAL;
 
 namespace CSharp_RepositoryPattern.Controllers
 {
     public class StudentsController : Controller
     {
-        private CSharp_RepositoryPatternContext db = new CSharp_RepositoryPatternContext();
+        private IStudentRepository studentRepository;
+
+        public StudentsController()
+        {
+            this.studentRepository = new StudentRepository(new CSharp_RepositoryPatternContext());
+        }
 
         // GET: Students
         public async Task<ActionResult> Index()
         {
-            return View(await db.Students.ToListAsync());
+            return View(await studentRepository.GetStudents());
         }
 
         // GET: Students/Details/5
@@ -28,7 +34,7 @@ namespace CSharp_RepositoryPattern.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = await db.Students.FindAsync(id);
+            Student student = await studentRepository.GetStudentByID(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -51,8 +57,8 @@ namespace CSharp_RepositoryPattern.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Students.Add(student);
-                await db.SaveChangesAsync();
+                studentRepository.InsertStudent(student);
+                await studentRepository.Save();
                 return RedirectToAction("Index");
             }
 
@@ -66,7 +72,7 @@ namespace CSharp_RepositoryPattern.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = await db.Students.FindAsync(id);
+            Student student = await studentRepository.GetStudentByID(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -83,8 +89,8 @@ namespace CSharp_RepositoryPattern.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(student).State = EntityState.Modified;
-                await db.SaveChangesAsync();
+                studentRepository.UpdateStudent(student);
+                await studentRepository.Save();
                 return RedirectToAction("Index");
             }
             return View(student);
@@ -97,7 +103,7 @@ namespace CSharp_RepositoryPattern.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = await db.Students.FindAsync(id);
+            Student student = await studentRepository.GetStudentByID(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -110,9 +116,9 @@ namespace CSharp_RepositoryPattern.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
-            Student student = await db.Students.FindAsync(id);
-            db.Students.Remove(student);
-            await db.SaveChangesAsync();
+            Student student = await studentRepository.GetStudentByID(id);
+            studentRepository.DeleteStudent(id);
+            await studentRepository.Save();
             return RedirectToAction("Index");
         }
 
@@ -120,7 +126,7 @@ namespace CSharp_RepositoryPattern.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                studentRepository.Dispose();
             }
             base.Dispose(disposing);
         }
