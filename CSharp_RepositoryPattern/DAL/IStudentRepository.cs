@@ -7,13 +7,13 @@ using System.Web;
 
 namespace Repository.DAL
 {
-        public interface IStudentRepository : IDisposable
-        {
-            Task<List<Student>> GetStudents();
-            Task<Student> GetStudentByID(int? studentId);
-            void InsertStudent(Student student);
-            void DeleteStudent(int studentID);
-            void UpdateStudent(Student student);
-            Task<int> Save();
-        } 
+    public interface IStudentRepository : IDisposable
+    {
+        Task<List<Student>> GetStudents();
+        Task<Student> GetStudentByID(int? studentId);
+        void InsertStudent(Student student);
+        void DeleteStudent(int studentID);
+        void UpdateStudent(Student student);
+        Task<int> Save();
+    } 
 }
